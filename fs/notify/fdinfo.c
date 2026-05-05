@@ -139,7 +139,6 @@ out_kfree:
 			kfree(pathname);
 		}
 orig_flow:
-orig_flow:
 #endif
 		{
 			u32 mask = mark->mask & IN_ALL_EVENTS;
@@ -150,6 +149,7 @@ orig_flow:
 			seq_putc(m, '\n');
 			iput(inode);
 		}
+	}
 }
 
 void inotify_show_fdinfo(struct seq_file *m, struct file *f)
@@ -163,9 +163,9 @@ void inotify_show_fdinfo(struct seq_file *m, struct file *f)
 
 static void fanotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark, struct file *file)
 {
-	(void)file;
 	unsigned int mflags = 0;
 	struct inode *inode;
+	(void)file;
 
 	if (mark->flags & FSNOTIFY_MARK_FLAG_IGNORED_SURV_MODIFY)
 		mflags |= FAN_MARK_IGNORED_SURV_MODIFY;
