@@ -125,10 +125,9 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 			if (!path.dentry->d_inode) {
 				goto out_path_put;
 			}
-			seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
-					inode_mark->wd, path.dentry->d_inode->i_ino, path.dentry->d_inode->i_sb->s_dev,
-					inotify_mark_user_mask(mark));
-			show_mark_fhandle(m, path.dentry->d_inode);
+            seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
+            		inode_mark->wd, path.dentry->d_inode->i_ino, path.dentry->d_inode->i_sb->s_dev,
+            		mark->mask & IN_ALL_EVENTS);
 			seq_putc(m, '\n');
 			path_put(&path);
 			kfree(pathname);
@@ -140,21 +139,17 @@ out_kfree:
 			kfree(pathname);
 		}
 orig_flow:
+orig_flow:
 #endif
-		/*
-		 * IN_ALL_EVENTS represents all of the mask bits
-		 * that we expose to userspace.  There is at
-		 * least one bit (FS_EVENT_ON_CHILD) which is
-		 * used only internally to the kernel.
-		 */
-		u32 mask = mark->mask & IN_ALL_EVENTS;
-		seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:%x ",
-			   inode_mark->wd, inode->i_ino, inode->i_sb->s_dev,
-			   mask, mark->ignored_mask);
-		show_mark_fhandle(m, inode);
-		seq_putc(m, '\n');
-		iput(inode);
-	}
+		{
+			u32 mask = mark->mask & IN_ALL_EVENTS;
+			seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:%x ",
+				   inode_mark->wd, inode->i_ino, inode->i_sb->s_dev,
+				   mask, mark->ignored_mask);
+			show_mark_fhandle(m, inode);
+			seq_putc(m, '\n');
+			iput(inode);
+		}
 }
 
 void inotify_show_fdinfo(struct seq_file *m, struct file *f)
@@ -166,8 +161,9 @@ void inotify_show_fdinfo(struct seq_file *m, struct file *f)
 
 #ifdef CONFIG_FANOTIFY
 
-static void fanotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
+static void fanotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark, struct file *file)
 {
+	(void)file;
 	unsigned int mflags = 0;
 	struct inode *inode;
 
