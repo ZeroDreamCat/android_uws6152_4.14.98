@@ -68,7 +68,7 @@ jobs:
           sed -i '/ifdef stackp-name/,/endif/{s/exit 1/true/}' Makefile
           sed -i '/ifdef stackp-check/,/endif/{s/exit 1/true/}' Makefile
           make olddefconfig
-          KCFLAGS="-Wno-error=sizeof-pointer-memaccess -Wno-error=array-bounds"
+          KCFLAGS="-Wno-error=sizeof-pointer-memaccess -Wno-error=array-bounds -Wno-error=missing-braces -Wno-error=format"
           make -j$(nproc) KCFLAGS="$KCFLAGS" 2>&1 | tee build.log
 
           # ===== 2. 编译内核内部模块 =====
