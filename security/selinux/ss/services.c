@@ -88,6 +88,7 @@ int selinux_policycap_cgroupseclabel;
 int selinux_policycap_nnp_nosuid_transition;
 
 static DEFINE_RWLOCK(policy_rwlock);
+EXPORT_SYMBOL(policy_rwlock);
 
 static struct sidtab sidtab;
 struct policydb policydb;
