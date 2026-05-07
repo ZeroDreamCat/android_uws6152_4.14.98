@@ -171,7 +171,7 @@ jobs:
           cp "${{ steps.locate.outputs.kernel_path }}" anykernel/
 
           # 平铺所有 .ko 到 /vendor/lib/modules/<版本>
-          MODULES_FLAT="anykernel/modules/vendor/lib/modules/${KERNEL_RELEASE}"
+          MODULES_FLAT="anykernel/modules/vendor/lib/modules"
           mkdir -p "${MODULES_FLAT}"
           find modules_out/lib/modules/${KERNEL_RELEASE} -name "*.ko" \
             -exec cp {} "${MODULES_FLAT}/" \;
