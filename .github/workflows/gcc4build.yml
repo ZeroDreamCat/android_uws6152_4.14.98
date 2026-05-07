@@ -105,6 +105,7 @@ jobs:
               make -C . M="$dir" modules_install INSTALL_MOD_PATH=./modules_out 2>&1 | tee -a build.log
             fi
           done
+
       - name: Locate pure kernel image
         id: locate
         continue-on-error: true
@@ -152,6 +153,34 @@ jobs:
           cd ../../../..
           ls -lh modules.tar.gz modules.zip
 
+      # ====== 新增：生成 AnyKernel3 zip（平铺模块，安装到 /vendor/lib/modules） ======
+      - name: Prepare AnyKernel3 (flattened modules)
+        env:
+          KERNEL_RELEASE: ${{ env.KERNEL_RELEASE }}
+        run: |
+          # 克隆 AnyKernel3 模板
+          git clone --depth=1 https://github.com/osm0sis/AnyKernel3.git anykernel
+          rm -rf anykernel/.git anykernel/{README.md,ramdisk,patch}
+
+          # 按需调整 anykernel.sh
+          sed -i 's/^block=\/dev\/block\/bootdevice\/by-name\/boot;/#block=auto;/' anykernel/anykernel.sh
+          # 声明模块安装到 vendor 分区
+          echo 'modules=vendor;' >> anykernel/anykernel.sh
+
+          # 复制内核镜像
+          cp "${{ steps.locate.outputs.kernel_path }}" anykernel/
+
+          # 平铺所有 .ko 到 /vendor/lib/modules/<版本>
+          MODULES_FLAT="anykernel/modules/vendor/lib/modules/${KERNEL_RELEASE}"
+          mkdir -p "${MODULES_FLAT}"
+          find modules_out/lib/modules/${KERNEL_RELEASE} -name "*.ko" \
+            -exec cp {} "${MODULES_FLAT}/" \;
+
+          # 打包
+          cd anykernel
+          zip -r9 ../AnyKernel3.zip .
+          cd ..
+
       - name: gzip vmlinux
         run: gzip -9 vmlinux
 
@@ -161,7 +190,7 @@ jobs:
           cp ${{ steps.locate.outputs.kernel_path }} telegram_artifacts/
           cp modules.tar.gz modules.zip telegram_artifacts/ 2>/dev/null || true
           cp System.map Module.symvers build.log telegram_artifacts/ 2>/dev/null || true
-          # vmlinux.gz is too large for Telegram, will be available via Release link
+          cp AnyKernel3.zip telegram_artifacts/                                    # <-- 新增
           cd telegram_artifacts
           zip -9 ../all_artifacts.zip *
           cd ..
@@ -177,6 +206,7 @@ jobs:
             ${{ steps.locate.outputs.kernel_path }}
             modules.tar.gz
             modules.zip
+            AnyKernel3.zip                # <-- 新增
             build.log
             System.map
             Module.symvers
