@@ -19,8 +19,6 @@ struct pinctrl_state     *mas_finger_eint_on, *mas_finger_eint_off,
                         *mas_spi_mo_on,  *mas_spi_mo_off,
                         *mas_spi_default;
 
-static struct device_node *node;
-
 // 匹配表
 static const struct of_device_id sof_match[] = {
     { .compatible = MA_DTS_NAME, },
