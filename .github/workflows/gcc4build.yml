@@ -181,7 +181,7 @@ jobs:
           cp ${{ steps.find_kernel.outputs.kernel_path }} telegram_artifacts/
           cp modules.tar.gz modules.zip telegram_artifacts/ 2>/dev/null || true
           cp System.map Module.symvers build.log telegram_artifacts/ 2>/dev/null || true
-          cp AnyKernel3.zip telegram_artifacts/
+          cp AnyKernel3.zip .config telegram_artifacts/
           cd telegram_artifacts
           zip -9 ../all_artifacts.zip *
           cd ..
@@ -198,6 +198,7 @@ jobs:
             modules.tar.gz
             modules.zip
             AnyKernel3.zip
+            .config
             build.log
             System.map
             Module.symvers
