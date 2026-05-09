@@ -129,7 +129,7 @@ static int da217_probe(struct i2c_client *client,
     if (ret)
         return ret;
 
-    input->name = "accelerometer";
+    input->name = "ST Dw 3-axis Accelerometer";
     input->id.bustype = BUS_I2C;
     input->dev.parent = &client->dev;
 
