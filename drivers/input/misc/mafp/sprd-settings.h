@@ -74,7 +74,7 @@ int mas_finger_get_gpio_info(struct spi_device *spi);
 int mas_finger_set_gpio_info(int cmd);
 
 // 获取中断号
-unsigned int mas_get_irq(struct device *dev);
+int mas_get_irq(struct device *dev);
 
 // 获取/移除平台资源（精简版）
 int mas_get_platform(void);
