@@ -181,7 +181,7 @@ extern void mas_select_transfer(struct spi_device *spi, int len);
 extern int mas_finger_set_gpio_info(int cmd);
 extern void mas_enable_spi_clock(struct spi_device *spi);
 extern void mas_disable_spi_clock(struct spi_device *spi);
-extern unsigned int mas_get_irq(struct device *dev);
+extern int mas_get_irq(struct device *dev);
 extern int mas_get_platform(void);
 extern int mas_remove_platform(void);
 extern void ma_spi_change(struct spi_device *spi, unsigned int speed, int flag);
