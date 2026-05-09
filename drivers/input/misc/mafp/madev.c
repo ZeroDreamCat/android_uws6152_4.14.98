@@ -174,7 +174,7 @@ static void mas_set_input(void) {
 
     smas->input = input;
 }
-
+*/
 
 
 //static int mas_ioctl (struct inode *node, struct file *filp, unsigned int cmd, uns igned long arg)           
@@ -347,7 +347,6 @@ static long mas_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     //MALOGF("end");
     return ret;
 }
-*/
 
 #ifdef CONFIG_COMPAT
 static long mas_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
