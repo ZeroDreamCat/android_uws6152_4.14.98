@@ -979,6 +979,7 @@ int mas_probe(struct spi_device *spi) {
 // ---------- 错误退出标签 ----------
 err6:
     deinit_file_node();
+err5:
 err4:
     deinit_interrupt();
 err3:
