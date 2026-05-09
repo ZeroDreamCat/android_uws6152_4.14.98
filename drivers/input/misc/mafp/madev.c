@@ -180,8 +180,17 @@ static void mas_set_input(void) {
 //static int mas_ioctl (struct inode *node, struct file *filp, unsigned int cmd, uns igned long arg)           
 //this function only supported while the linux kernel version under v2.6.36,while the kernel version under v2.6.36, use this line
 static long mas_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
-    //MALOGF("start");
-	int tmp;
+    int tmp;
+
+    /* 暂时禁用所有手势按键 ioctl */
+    if (smas->input == NULL &&
+        (cmd == TAP_DOWN || cmd == TAP_UP ||
+         cmd == SINGLE_TAP || cmd == DOUBLE_TAP || cmd == LONG_TAP ||
+         cmd == MA_KEY_UP || cmd == MA_KEY_LEFT ||
+         cmd == MA_KEY_DOWN || cmd == MA_KEY_RIGHT)) {
+        return -ENODEV;
+    }
+
     switch(cmd){
         case TIMEOUT_WAKELOCK:                                                       //延时锁    timeout lock
 #ifdef CONFIG_PM_WAKELOCKS
@@ -950,12 +959,9 @@ int mas_probe(struct spi_device *spi) {
    if (ret)
        goto err5;           // 释放 irq + workerqueue + spi + vars
 
-   mas_set_input();
-   if (!smas->input) {
-       MALOGE("input device registration failed");
-       ret = -ENODEV;
-       goto err6;  // 跳转到合适的错误处理标签
-   }
+      /* 暂时跳过 input 注册，排查 combined-hal 崩溃 */
+   smas->input = NULL;
+   MALOGD("skip input device registration for debugging");
 
    ret = init_notifier_call();
    if (ret != 0) {
