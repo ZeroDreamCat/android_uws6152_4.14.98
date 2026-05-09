@@ -1,8 +1,6 @@
 config FINGERPRINT_MICROARRAY
 	tristate "MicroArray fingerprint sensor support"
 	depends on SPI
-	select INPUT
-	select FB
 	help
 	  This driver supports the MicroArray fingerprint sensor
 	  connected via SPI interface.
