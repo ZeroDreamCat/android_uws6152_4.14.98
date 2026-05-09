@@ -137,7 +137,7 @@ static ssize_t mas_read(struct file *filp, char __user *buf, size_t count, loff_
     return val;
 }
 
-
+/*
 static void mas_set_input(void) {
     struct input_dev *input = NULL;
     int ret;
@@ -182,7 +182,6 @@ static void mas_set_input(void) {
 static long mas_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     int tmp;
 
-    /* 暂时禁用所有手势按键 ioctl */
     if (smas->input == NULL &&
         (cmd == TAP_DOWN || cmd == TAP_UP ||
          cmd == SINGLE_TAP || cmd == DOUBLE_TAP || cmd == LONG_TAP ||
@@ -348,6 +347,7 @@ static long mas_ioctl(struct file *filp, unsigned int cmd, unsigned long arg) {
     //MALOGF("end");
     return ret;
 }
+*/
 
 #ifdef CONFIG_COMPAT
 static long mas_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
