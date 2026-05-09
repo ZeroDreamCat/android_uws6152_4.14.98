@@ -956,7 +956,7 @@ int mas_probe(struct spi_device *spi) {
 
    ret = init_file_node(); 
    if (ret)
-       goto err5;           // 释放 irq + workerqueue + spi + vars
+       goto err4;           // 释放 irq + workerqueue + spi + vars
 
       /* 暂时跳过 input 注册，排查 combined-hal 崩溃 */
    smas->input = NULL;
@@ -979,7 +979,6 @@ int mas_probe(struct spi_device *spi) {
 // ---------- 错误退出标签 ----------
 err6:
     deinit_file_node();
-err5:
 err4:
     deinit_interrupt();
 err3:
