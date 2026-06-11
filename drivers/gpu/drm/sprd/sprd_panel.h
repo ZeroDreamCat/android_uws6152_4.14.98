@@ -84,7 +84,7 @@ struct panel_info {
 	const void *cmds[CMD_CODE_MAX];
 	int cmds_len[CMD_CODE_MAX];
 
-	/* esd check parameters*/
+	/* esd check parameters */
 	bool esd_check_en;
 	u8 esd_check_mode;
 	u16 esd_check_period;
@@ -96,6 +96,17 @@ struct panel_info {
 	u32 lanes;
 	u32 mode_flags;
 	bool use_dcs;
+
+	/* PHY clock parameters from DTS */
+	u32 phy_bit_clock;
+	u32 phy_escape_clock;
+
+	/* panel physical size */
+	u32 width_mm;
+	u32 height_mm;
+
+	/* force attach flag */
+	u32 force_attached;
 };
 
 struct sprd_panel {

@@ -389,6 +389,7 @@ static int dbg_log_probe(struct platform_device *pdev)
 
 static const struct of_device_id dt_ids[] = {
 	{.compatible = "sprd,dbg-log-sharkl5",},
+	{.compatible = "sprd,debuglog-sharkl5",},
 	{},
 };
 
