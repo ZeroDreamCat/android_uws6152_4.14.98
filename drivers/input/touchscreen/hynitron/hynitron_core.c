@@ -1517,10 +1517,9 @@ static int hyn_parse_dt(struct device *dev, struct hynitron_ts_platform_data *pd
 	}
 
 	/* ===== 1. 分辨率 ===== */
-	/* 改为 "display-coords"，去掉 "hynitron," 前缀 */
-	ret = hyn_get_dt_coords(dev, "display-coords", pdata);
+	ret = hyn_get_dt_coords(dev, "hynitron,display-coords", pdata);
 	if (ret < 0) {
-		HYN_ERROR("DTS Unable to get display-coords");
+		HYN_ERROR("DTS Unable to get hynitron,display-coords");
 		return -1;
 	}
 
@@ -1556,24 +1555,22 @@ static int hyn_parse_dt(struct device *dev, struct hynitron_ts_platform_data *pd
 	}
 
 	/* ===== 3. GPIO ===== */
-	/* 改为 "reset-gpio" 和 "irq-gpio"，去掉 "hynitron," 前缀 */
-	pdata->reset_gpio = of_get_named_gpio_flags(np, "reset-gpio", 0, &pdata->reset_gpio_flags);
+	pdata->reset_gpio = of_get_named_gpio_flags(np, "hynitron,reset-gpio", 0, &pdata->reset_gpio_flags);
 	if (pdata->reset_gpio < 0) {
-		HYN_ERROR("DTS Unable to get reset-gpio");
+		HYN_ERROR("DTS Unable to get hynitron,reset-gpio");
 		return -1;
 	}
 
-	pdata->irq_gpio = of_get_named_gpio_flags(np, "irq-gpio", 0, &pdata->irq_gpio_flags);
+	pdata->irq_gpio = of_get_named_gpio_flags(np, "hynitron,irq-gpio", 0, &pdata->irq_gpio_flags);
 	if (pdata->irq_gpio < 0) {
-		HYN_ERROR("DTS Unable to get irq-gpio");
+		HYN_ERROR("DTS Unable to get hynitron,irq-gpio");
 		return -1;
 	}
 
 	/* ===== 4. 最大触摸点数 ===== */
-	/* 改为 "max-touch-number"，去掉 "hynitron," 前缀 */
-	ret = of_property_read_u32(np, "max-touch-number", &temp_val);
+	ret = of_property_read_u32(np, "hynitron,max-touch-number", &temp_val);
 	if (ret < 0) {
-		HYN_ERROR("DTS Unable to get max-touch-number, please check dts");
+		HYN_ERROR("DTS Unable to get hynitron,max-touch-number, please check dts");
 		pdata->max_touch_num = HYN_MAX_POINTS;
 	} else {
 		if (temp_val < 2)
@@ -1585,11 +1582,11 @@ static int hyn_parse_dt(struct device *dev, struct hynitron_ts_platform_data *pd
 	}
 
 	/* ===== 5. 坐标翻转/交换  ===== */
-	if (!of_property_read_u32(np, "pos-swap", &temp_val))
+	if (!of_property_read_u32(np, "hynitron,revert-xy", &temp_val))
 		pdata->xy_exchange = (bool)temp_val;
-	if (!of_property_read_u32(np, "posx-reverse", &temp_val))
+	if (!of_property_read_u32(np, "hynitron,revert-x", &temp_val))
 		pdata->x_overturn = (bool)temp_val;
-	if (!of_property_read_u32(np, "posy-reverse", &temp_val))
+	if (!of_property_read_u32(np, "hynitron,revert-y", &temp_val))
 		pdata->y_overturn = (bool)temp_val;
 
 	HYN_DEBUG("DTS max touch number:%d, irq gpio:%d, reset gpio:%d",
