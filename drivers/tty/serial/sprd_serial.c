@@ -829,6 +829,7 @@ static int sprd_resume(struct device *dev)
 static SIMPLE_DEV_PM_OPS(sprd_pm_ops, sprd_suspend, sprd_resume);
 
 static const struct of_device_id serial_ids[] = {
+	{.compatible = "sprd,ums312-uart",},
 	{.compatible = "sprd,sc9836-uart",},
 	{}
 };
