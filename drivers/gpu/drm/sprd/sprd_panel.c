@@ -435,41 +435,41 @@ static int of_parse_reset_seq(struct device *dev, struct device_node *np,
 
 	prop = of_find_property(np, "sprd,reset-on-sequence", &bytes);
 	if (!prop) {
-		DRM_ERROR("sprd,reset-on-sequence property not found\n");
-		return -EINVAL;
+		DRM_INFO("sprd,reset-on-sequence not found, skip\n");
+		info->rst_on_seq.items = 0;
+		info->rst_on_seq.timing = NULL;
+	} else {
+		p = devm_kzalloc(dev, bytes, GFP_KERNEL);
+		if (!p)
+			return -ENOMEM;
+		rc = of_property_read_u32_array(np, "sprd,reset-on-sequence",
+						p, bytes / 4);
+		if (rc) {
+			DRM_ERROR("parse sprd,reset-on-sequence failed\n");
+			return rc;
+		}
+		info->rst_on_seq.items = bytes / 8;
+		info->rst_on_seq.timing = (struct gpio_timing *)p;
 	}
-
-	p = devm_kzalloc(dev, bytes, GFP_KERNEL);
-	if (!p)
-		return -ENOMEM;
-	rc = of_property_read_u32_array(np, "sprd,reset-on-sequence",
-					p, bytes / 4);
-	if (rc) {
-		DRM_ERROR("parse sprd,reset-on-sequence failed\n");
-		return rc;
-	}
-
-	info->rst_on_seq.items = bytes / 8;
-	info->rst_on_seq.timing = (struct gpio_timing *)p;
 
 	prop = of_find_property(np, "sprd,reset-off-sequence", &bytes);
 	if (!prop) {
-		DRM_ERROR("sprd,reset-off-sequence property not found\n");
-		return -EINVAL;
+		DRM_INFO("sprd,reset-off-sequence not found, skip\n");
+		info->rst_off_seq.items = 0;
+		info->rst_off_seq.timing = NULL;
+	} else {
+		p = devm_kzalloc(dev, bytes, GFP_KERNEL);
+		if (!p)
+			return -ENOMEM;
+		rc = of_property_read_u32_array(np, "sprd,reset-off-sequence",
+						p, bytes / 4);
+		if (rc) {
+			DRM_ERROR("parse sprd,reset-off-sequence failed\n");
+			return rc;
+		}
+		info->rst_off_seq.items = bytes / 8;
+		info->rst_off_seq.timing = (struct gpio_timing *)p;
 	}
-
-	p = devm_kzalloc(dev, bytes, GFP_KERNEL);
-	if (!p)
-		return -ENOMEM;
-	rc = of_property_read_u32_array(np, "sprd,reset-off-sequence",
-					p, bytes / 4);
-	if (rc) {
-		DRM_ERROR("parse sprd,reset-off-sequence failed\n");
-		return rc;
-	}
-
-	info->rst_off_seq.items = bytes / 8;
-	info->rst_off_seq.timing = (struct gpio_timing *)p;
 
 	return 0;
 }
@@ -646,6 +646,16 @@ static int sprd_panel_parse_dt(struct device_node *np, struct sprd_panel *panel,
 		info->use_dcs = true;
 	else
 		info->use_dcs = false;
+
+	rc = of_property_read_u32(lcd_node, "sprd,phy-bit-clock",
+				  &info->phy_bit_clock);
+	if (rc)
+		info->phy_bit_clock = 0;
+
+	rc = of_property_read_u32(lcd_node, "sprd,phy-escape-clock",
+				  &info->phy_escape_clock);
+	if (rc)
+		info->phy_escape_clock = 0;
 
 	rc = of_parse_reset_seq(dev, lcd_node, info);
 	if (rc) {
