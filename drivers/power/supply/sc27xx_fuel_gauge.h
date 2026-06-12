@@ -1,7 +1,7 @@
 #ifndef __UNISOC_FUEL_GAUGE_INTF_H__
 #define __UNISOC_FUEL_GAUGE_INTF_H__
 #include <linux/power/sprd_battery_info.h>
-#include <linux/power/power_supply.h>
+#include <linux/power_supply.h>
 /* PMIC global control registers definition */
 #define SC27XX_MODULE_EN0		0xc08
 #define SC27XX_CLK_EN0			0xc18
