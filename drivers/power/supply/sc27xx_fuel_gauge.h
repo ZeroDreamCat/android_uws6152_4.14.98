@@ -1,6 +1,7 @@
 #ifndef __UNISOC_FUEL_GAUGE_INTF_H__
 #define __UNISOC_FUEL_GAUGE_INTF_H__
 #include <linux/power/sprd_battery_info.h>
+#include <linux/power/power_supply.h>
 /* PMIC global control registers definition */
 #define SC27XX_MODULE_EN0		0xc08
 #define SC27XX_CLK_EN0			0xc18
@@ -151,16 +152,6 @@
 #define SC27XX_FGU_SHUTDOWN_TIME		(15 * 60)
 
 #define SC27XX_FGU_CAP_CALC_WORK_15S			15
-
-struct power_supply_vol_temp_table {
-	int vol;	/* microVolts */
-	int temp;	/* celsius */
-};
-
-struct power_supply_capacity_temp_table {
-	int temp;	/* celsius */
-	int cap;	/* capacity percentage */
-};
 
 enum sc27xx_fgu_track_state {
 	CAP_TRACK_INIT,
