@@ -61,7 +61,7 @@ struct iio_channel	*batt_id = NULL;
 int fuelgauge_apply = 0;
 int batt_id_fast_chcek = 0;
 int g_ntc_switch_not_use = 0;
-static int g_switch_ntc = 0;
+static int g_switch_ntc = -1;   // -1 表示无效 GPIO
 int is_subboard_temp_support = 0;
 int enable_is_force_full;
 bool last_full = false;
@@ -149,11 +149,16 @@ int battery_type_check(int *battery_type)
 		if (ret < 0) {
 			bm_debug( "[battery_type_check] read channel err = %d,\n", ret);
 		}
-		if (!g_ntc_switch_not_use)
-			gpio_set_value(g_switch_ntc, 1);
-
-		bm_debug( "[battery_type_check] g_switch_ntc = %d,ret = %d,ret_value[%d]\n", gpio_get_value(g_switch_ntc),ret, ret_value);
 		value = ret_value;
+        if (!g_ntc_switch_not_use && gpio_is_valid(g_switch_ntc))
+            gpio_set_value(g_switch_ntc, 1);
+
+		if (gpio_is_valid(g_switch_ntc))
+            bm_debug("[battery_type_check] g_switch_ntc = %d, ret = %d, ret_value[%d]\n",
+                     gpio_get_value(g_switch_ntc), ret, ret_value);
+        else
+            bm_debug("[battery_type_check] g_switch_ntc invalid, ret = %d, ret_value[%d]\n",
+                     ret, ret_value);
 
 		if (is_fuelgauge_apply() == true) {
 			if (value >= BAT_TYPE__LIWEI_4480mV_NTC_MIN && value <= BAT_TYPE__LIWEI_4480mV_NTC_MAX) {
@@ -568,6 +573,7 @@ int battery_init(struct platform_device *pdev)
 #ifdef OPLUS_FEATURE_CHG_BASIC
 /* ZhangKun@BSP.CHG.basic, 2021/12/25, Add for charger */
 	struct oplus_gauge_chip *chip = NULL;
+	int ret;
 #endif
 	gauge_data = dev_get_drvdata(&pdev->dev);
 
@@ -588,15 +594,17 @@ int battery_init(struct platform_device *pdev)
 	fg_read_dts_val(pdev->dev.of_node, "NTC_SWITCH_NOT_USE", &(g_ntc_switch_not_use), 1);
 	bm_err("%s, g_ntc_switch_not_use:%d\n", __func__, g_ntc_switch_not_use);
 
-	g_switch_ntc = of_get_named_gpio(pdev->dev.of_node, "ntc_switch_gpio", 0);
-	if (g_switch_ntc < 0) {
-		bm_err("ntc_switch_gpio < 0 !!!\r\n");
-		g_switch_ntc = 0;
-	}
-
-	if(gpio_request(g_switch_ntc, "NTC_SWITCH_GPIO") < 0) {
-		bm_err("ntc_switch_gpio gpio_request fail\r\n");
-	}
+    g_switch_ntc = of_get_named_gpio(pdev->dev.of_node, "ntc_switch_gpio", 0);
+    if (!gpio_is_valid(g_switch_ntc)) {
+        bm_err("ntc_switch_gpio invalid or not specified, skip GPIO control\n");
+        // 保持 g_switch_ntc = -1，后续代码会通过 gpio_is_valid() 检查跳过
+    } else {
+    ret = gpio_request(g_switch_ntc, "NTC_SWITCH_GPIO");
+        if (ret < 0) {
+            bm_err("ntc_switch_gpio gpio_request fail, err=%d\n", ret);
+            g_switch_ntc = -1;
+        }
+    }
 
 	if(is_fuelgauge_apply() == true) {
 		batt_id = devm_iio_channel_get(&pdev->dev, "batt_id");
