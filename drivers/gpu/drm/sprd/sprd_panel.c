@@ -1,5 +1,5 @@
 /*
- * ICN3312 Panel driver from sprd simple panel by SoraNeko
+ * Co5300 Panel driver from sprd simple panel by SoraNeko
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -235,34 +235,49 @@ static int sprd_panel_disable(struct drm_panel *p)
 
 static int sprd_panel_enable(struct drm_panel *p)
 {
-	struct sprd_panel *panel = to_sprd_panel(p);
-	struct backlight_device *bl = NULL;
+    struct sprd_panel *panel = to_sprd_panel(p);
+    struct backlight_device *bl = NULL;
 
-	mutex_lock(&panel_lock);
-	sprd_panel_send_cmds(panel->slave,
-			     panel->info.cmds[CMD_CODE_INIT],
-			     panel->info.cmds_len[CMD_CODE_INIT]);
+    mutex_lock(&panel_lock);
 
-	/* 先记录背光指针，但不要在锁内调 backlight_update_status */
-	if (panel->backlight) {
-		panel->backlight->props.power = FB_BLANK_UNBLANK;
-		panel->backlight->props.state &= ~BL_CORE_FBBLANK;
-		bl = panel->backlight;       // 锁外调用
-	}
+    // ========== 新增：先发送 Sleep Out 命令，唤醒面板 ==========
+    if (panel->info.cmds[CMD_CODE_SLEEP_OUT] && panel->info.cmds_len[CMD_CODE_SLEEP_OUT]) {
+        DRM_INFO("[PANEL] Sending Sleep Out command\n");
+        sprd_panel_send_cmds(panel->slave,
+                             panel->info.cmds[CMD_CODE_SLEEP_OUT],
+                             panel->info.cmds_len[CMD_CODE_SLEEP_OUT]);
+        // 等待面板稳定，通常需要 120ms (根据数据手册调整)
+        msleep(120);
+    } else {
+        DRM_WARN("[PANEL] No Sleep Out command, panel may not work\n");
+    }
 
-	if (panel->info.esd_check_en) {
-		schedule_delayed_work(&panel->esd_work,
-				      msecs_to_jiffies(1000));
-		panel->esd_work_pending = true;
-	}
+    // ========== 原有：发送初始化命令 ==========
+    sprd_panel_send_cmds(panel->slave,
+                         panel->info.cmds[CMD_CODE_INIT],
+                         panel->info.cmds_len[CMD_CODE_INIT]);
 
-	panel->is_enabled = true;
-	mutex_unlock(&panel_lock);
+    // ========== 原有：背光处理 ==========
+    if (panel->backlight) {
+        panel->backlight->props.power = FB_BLANK_UNBLANK;
+        panel->backlight->props.state &= ~BL_CORE_FBBLANK;
+        bl = panel->backlight;       // 锁外调用
+    }
 
-	if (bl)
-		backlight_update_status(bl);
+    // ========== 原有：ESD 检查 ==========
+    if (panel->info.esd_check_en) {
+        schedule_delayed_work(&panel->esd_work,
+                              msecs_to_jiffies(1000));
+        panel->esd_work_pending = true;
+    }
 
-	return 0;
+    panel->is_enabled = true;
+    mutex_unlock(&panel_lock);
+
+    if (bl)
+        backlight_update_status(bl);
+
+    return 0;
 }
 
 static int sprd_panel_get_modes(struct drm_panel *p)
