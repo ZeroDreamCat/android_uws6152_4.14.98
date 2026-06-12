@@ -2,8 +2,6 @@
 subdir-ccflags-$(CONFIG_POWER_SUPPLY_DEBUG) := -DDEBUG
 
 power_supply-y				:= power_supply_core.o
-obj-y += sprd_battery_info.o
-obj-y += unisoc_battery.o
 power_supply-$(CONFIG_SYSFS)		+= power_supply_sysfs.o
 power_supply-$(CONFIG_LEDS_TRIGGERS)	+= power_supply_leds.o
 
@@ -86,7 +84,7 @@ obj-$(CONFIG_AXP288_FUEL_GAUGE) += axp288_fuel_gauge.o
 obj-$(CONFIG_AXP288_CHARGER)	+= axp288_charger.o
 obj-$(CONFIG_CHARGER_CROS_USBPD)	+= cros_usbpd-charger.o
 obj-$(CONFIG_CHARGER_SC2731)	+= sc2731_charger.o
-obj-$(CONFIG_FUEL_GAUGE_SC27XX)	+= sc27xx_fuel_gauge_core.o
+obj-$(CONFIG_FUEL_GAUGE_SC27XX)	+= sc27xx_fuel_gauge.o
 obj-$(CONFIG_CHARGER_SC2703)	+= sc2703-charger.o
 obj-$(CONFIG_CHARGER_FAN54015)	+= fan54015-charger.o
 obj-$(CONFIG_FAST_CHARGER_SC2730) += sc2730_fast_charger.o
